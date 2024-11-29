@@ -1,44 +1,37 @@
 pipeline {
     agent any
 
-    environment {
-        CHROME_DRIVER_PATH = "C:/ProgramData/Jenkins/.jenkins/workspace/auto-os-genpol/src/main/resources/driver/chrome131/chromedriver.exe"
-        RUTA_GIT = 'C:\\Users\\alfredo.obregon\\AppData\\Local\\Programs\\Git\\bin'
-    }
-
     tools {
-        maven 'MAVEN'
+        jdk 'JDK8' // Nombre del JDK 8 configurado en Jenkins
+        maven 'Maven' // Nombre de la instalación de Maven configurada en Jenkins
     }
 
     stages {
-        stage('Configurar Git') {
+        stage('Checkout') {
             steps {
-                script {
-                    bat "\"${RUTA_GIT}\\git.exe\" config --global http.postBuffer 524288000"
-                    bat "\"${RUTA_GIT}\\git.exe\" config --global http.maxRequestBuffer 100M"
-                    bat "\"${RUTA_GIT}\\git.exe\" config --global http.lowSpeedLimit 0"
-                    bat "\"${RUTA_GIT}\\git.exe\" config --global http.lowSpeedTime 999"
-                }
-            }
-        }
-
-        stage('Clonar Repositorio') {
-            steps {
-                retry(3) {
-                    checkout scm
-                }
+                checkout scm
             }
         }
 
         stage('Instalar Dependencias') {
             steps {
-                bat "\"${tool 'MAVEN'}\\bin\\mvn\" install"
+                script {
+                    // Cambiar temporalmente a JDK 8
+                    env.JAVA_HOME = tool name: 'JDK8', type: 'jdk'
+                    env.PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
+                }
+                bat "\"${tool 'Maven'}\\bin\\mvn\" install"
             }
         }
 
         stage('Ejecutar Pruebas') {
             steps {
-                bat "\"${tool 'MAVEN'}\\bin\\mvn\" clean verify"
+                script {
+                    // Cambiar temporalmente a JDK 8
+                    env.JAVA_HOME = tool name: 'JDK8', type: 'jdk'
+                    env.PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
+                }
+                bat "\"${tool 'Maven'}\\bin\\mvn\" clean verify"
             }
         }
 
