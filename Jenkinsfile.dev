@@ -40,6 +40,12 @@ pipeline {
                 junit '**/target/surefire-reports/*.xml'
             }
         }
+
+        stage('Archivar Reporte') {
+            steps {
+                archiveArtifacts artifacts: '**/target/*.docx', allowEmptyArchive: true
+            }
+        }
     }
 
     post {
